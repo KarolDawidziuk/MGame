@@ -15,7 +15,6 @@ Remember when you compare twoo cards wait a one second to finish comparing and y
 At the end of playing user see notification with statistic(time, stars ect)
 
 
-
-
+Demo: https://karoldawidziuk.github.io/MGame/
 
  
