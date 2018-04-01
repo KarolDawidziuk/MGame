@@ -2,14 +2,16 @@
 const cardList = document.querySelector('.deck');
 
 let $deck = $('.deck');
+let $restart = $('.restart');
 let oneVisible = false;
 let turnCounter = 0;
 let cardOpenArray = [];
 let visible_nr;
 let cardOne = null;
-let cardOpenTempomary = [];
 var lock = false;
 let pairLeft = 8; 
+let timer;
+let stars = 3;
 
 //card List
 let cardArray = [
@@ -52,23 +54,18 @@ function createCards(){
 	
 	}
 }
-
+//Open and check cards
 	const cardListener = function(){
 
-		
 		$deck.find('.card').bind('click', function(){
 
 			let $this = $(this);
-			//cardOne = this;
 
 		    if($this.hasClass('show') || $this.hasClass('match')) {return true;}
 
 			cardOne = $this.addClass('open show');
 			cardOpenArray.push(cardOne.html());
 		
-
-			//cardOpenTempomary = Array.from(cardOpenArray);
-
 			if(oneVisible == false){
 				//first card
 				oneVisible = true;
@@ -78,7 +75,6 @@ function createCards(){
 			}else{
 				//second card
 				if(visible_nr == cardOpenArray[1]){
-					console.log("pair");
 					setTimeout(function() {
 					 matchTwooCards();
 					},750);
@@ -88,7 +84,6 @@ function createCards(){
 				}
 				else
 				{
-					console.log("not");
 					setTimeout(function() {
 					 removeTwooCards();
 					},1000);
@@ -100,21 +95,39 @@ function createCards(){
 				turnCounter++;
 				$('.score').html('Turn counter: '+ turnCounter);
 				oneVisible = false;
+			updateMoves();	
 			}
 		});
 		}
-
 
 function matchTwooCards(){
 		$('.show').addClass('match');
 
 		pairLeft--;
+		let minutes = $('.minutes').text();
+		let seconds = $('.seconds').text();
 
+		//finish game
 		if(pairLeft == 0){
-			$('.deck').html('<h1>You Win! </br> Done in '+ turnCounter + ' turns </h1>');
+			clearInterval(timer);
+			swal({
+		allowEscapeKey: false,
+		allowOutsideClick: false,
+		title: 'Congratulations! You Won!',
+		text: 'Your statistic: \nNumber of tour: ' + turnCounter + '\nTime: ' + minutes + ":" 
+		+ seconds + '\nStars: '+ stars,
+		type: 'success',
+		confirmButtonColor: 'blue',
+		button: 'Play again!'
+	}).then(function (isConfirm) {
+		if (isConfirm) {
+			createCards();
+			location.reload();
+		}
+	})
 		}
 
-		lock = false;
+		
 	}
 
 
@@ -125,9 +138,55 @@ function removeTwooCards(){
 	}
 
 
+//restart game
+$restart.bind('click', function () {
+	swal({
+  title: "Restart",
+  text: "Game gonna be restareted",
+  icon: "error",
+  button: "Restart",
+}).then(function (isConfirm) {
+		if (isConfirm) {
+			location.reload();
+		}
+	});
+});
+
+//Timer
+function startTimer() {
+  let moves = 0;
+  $(".card").on("click", function() {
+    moves += 1;
+    if (moves === 1) {
+      var sec = 0;
+      function time ( val ) { return val > 9 ? val : "0" + val; }
+      timer = setInterval( function(){
+        $(".seconds").html(time(++sec % 60));
+        $(".minutes").html(time(parseInt(sec / 60, 10)));
+      }, 1000);
+    }
+  });
+}
+
+function updateMoves(){
+if (turnCounter > 0 && turnCounter < 15) {
+    stars = stars;
+  } else if (turnCounter >= 15 && turnCounter <= 20) {
+    $("#starOne").removeClass("fa-star");
+    stars = "2";
+  } else if (turnCounter > 20) {
+    $("#starTwoo").removeClass("fa-star");
+    stars = "1";
+  	}
+  };     
+
+
+//init function
 function game(){
 	createCards();
-
+	timer = 0;
+	turnCounter = 0;
+	startTimer();
 }
 game();
 
