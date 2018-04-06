@@ -4,14 +4,15 @@ const cardList = document.querySelector('.deck');
 let $deck = $('.deck');
 let $restart = $('.restart');
 let oneVisible = false;
-let turnCounter = 0;
-let cardOpenArray = [];
+let turnCounter = -1;
 let visible_nr;
 let cardOne = null;
-var lock = false;
 let pairLeft = 8; 
 let timer;
 let stars = 3;
+let count = 0;
+let checkOpened = [];
+
 
 //card List
 let cardArray = [
@@ -50,93 +51,86 @@ function createCards(){
 		const newCardList = document.querySelector('.deck');
 		newCardList.appendChild(newCard);
 		newCard.appendChild(newIcon);
-		cardListener();
+		newCard.addEventListener('click', openCards);
 	
 	}
 }
 //Open and check cards
-	const cardListener = function(){
+	let clickFlag = true;
+//need react on clicks or ignore it
 
-		$deck.find('.card').bind('click', function(){
+function openCards(){
+	if(!clickFlag){return;}
+	//ignore all click while not true
 
-			let $this = $(this);
+	this.classList.toggle('show');
+	this.classList.toggle('open');
+	//push the clicked card to the checkOpened array
+	checkOpened.push(this);
+	//check if the user open the first card to leave to opened
 
-		    if($this.hasClass('show') || $this.hasClass('match')) {return true;}
+	this.removeEventListener('click', openCards);
+	//remove click event fot 1st and 2nd click 
 
-			cardOne = $this.addClass('open show');
-			cardOpenArray.push(cardOne.html());
-		
-			if(oneVisible == false){
-				//first card
-				oneVisible = true;
-				visible_nr = cardOpenArray[0];
-				lock = false;
+	if(checkOpened.length == 2){
+		//if we have two clicks we need to check them
+		clickFlag = false;
+		//but first we need to ignore all other clicks with this line
+		setTimeout(function(){
+			//we need to set timeout because first we need that animation occurred
+
+			if(checkOpened[0].innerHTML === checkOpened[1].innerHTML){
+				//start our check
+				checkOpened[0].classList.add('match');
+				checkOpened[1].classList.add('match');
+
+				let minutes = $('.minutes').text();
+				let seconds = $('.seconds').text();
+
+				pairLeft--;
+
+				//finish game
+			if(pairLeft == 0){
+				clearInterval(timer);
+				swal({
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					title: 'Congratulations! You Won!',
+					text: 'Your statistic: \nNumber of tour: ' + turnCounter + '\nTime: ' + minutes + ":" 
+					+ seconds + '\nStars: '+ stars,
+					type: 'success',
+					confirmButtonColor: 'blue',
+					button: 'Play again!'
+				}).then(function (isConfirm) {
+			if (isConfirm) {
+				createCards();
+				location.reload();
+					}
+				})
+				}
+				checkOpened = [];
 
 			}else{
-				//second card
-				if(visible_nr == cardOpenArray[1]){
-					setTimeout(function() {
-					 matchTwooCards();
-					},750);
-					cardOpenArray.shift();
-					cardOpenArray.shift();
-					lock = false;
-				}
-				else
-				{
-					setTimeout(function() {
-					 removeTwooCards();
-					},1000);
-					cardOpenArray.shift();
-					cardOpenArray.shift();
-					lock = false;
-				}
+				//if mismatch
+				setTimeout(function(){
+					checkOpened[0].classList.remove('open');
+					checkOpened[1].classList.remove('open');
 
-				turnCounter++;
-				$('.score').html('Turn counter: '+ turnCounter);
-				oneVisible = false;
-			updateMoves();	
-			}
-		});
-		}
+					checkOpened[0].classList.remove('show');
+					checkOpened[1].classList.remove('show');
 
-function matchTwooCards(){
-		$('.show').addClass('match');
-
-		pairLeft--;
-		let minutes = $('.minutes').text();
-		let seconds = $('.seconds').text();
-
-		//finish game
-		if(pairLeft == 0){
-			clearInterval(timer);
-			swal({
-		allowEscapeKey: false,
-		allowOutsideClick: false,
-		title: 'Congratulations! You Won!',
-		text: 'Your statistic: \nNumber of tour: ' + turnCounter + '\nTime: ' + minutes + ":" 
-		+ seconds + '\nStars: '+ stars,
-		type: 'success',
-		confirmButtonColor: 'blue',
-		button: 'Play again!'
-	}).then(function (isConfirm) {
-		if (isConfirm) {
-			createCards();
-			location.reload();
-		}
-	})
-		}
-
-		
+					checkOpened[0].addEventListener('click',openCards);
+					checkOpened[1].addEventListener('click',openCards);
+					checkOpened = [];
+				}, 0);
+			}	
+			clickFlag = true;
+		}, 750);
+		turnCounter++;
+			$('.score').html('Turn counter: '+ turnCounter);
+			updateMoves();
 	}
-
-
-function removeTwooCards(){
-		$('.show').removeClass('open show');
-		$('.show').addClass('match');
-		lock = false;
-	}
-
+}
 
 //restart game
 $restart.bind('click', function () {
@@ -158,7 +152,7 @@ function startTimer() {
   $(".card").on("click", function() {
     moves += 1;
     if (moves === 1) {
-      var sec = 0;
+      let sec = 0;
       function time ( val ) { return val > 9 ? val : "0" + val; }
       timer = setInterval( function(){
         $(".seconds").html(time(++sec % 60));
