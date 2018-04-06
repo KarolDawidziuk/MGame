@@ -3,8 +3,8 @@
 ## Table of Contents
 
 * [Instructions](#instructions)
-* [How To Play](#HowToPlay)
-* [How To Run](#howToRun)
+* [How To Play](#how To Play)
+* [How To Run](#how To Run)
 
 ## Instructions
 
