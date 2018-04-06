@@ -1,6 +1,7 @@
 //consts
 const cardList = document.querySelector('.deck');
 
+//variables
 let $deck = $('.deck');
 let $restart = $('.restart');
 let oneVisible = false;
@@ -14,7 +15,7 @@ let count = 0;
 let checkOpened = [];
 
 
-//card List
+//card List array
 let cardArray = [
 	'fa-diamond', 'fa-diamond', 'fa-paper-plane-o', 'fa-paper-plane-o',
 	'fa-anchor', 'fa-anchor', 'fa-bolt', 'fa-bolt',
@@ -43,7 +44,9 @@ function createCards(){
 
 	cardList.innerHTML = "";
 	for(let i = 0; i < cardsShuffleArray.length; i++){
+		//add new parent
 	    const newCard = document.createElement('li');
+	    //add new child
 		const newIcon = document.createElement('i');
 		newCard.cover = cardsShuffleArray[i];
 		newCard.classList.add('card');
@@ -51,6 +54,7 @@ function createCards(){
 		const newCardList = document.querySelector('.deck');
 		newCardList.appendChild(newCard);
 		newCard.appendChild(newIcon);
+		//add listener to card 
 		newCard.addEventListener('click', openCards);
 	
 	}
@@ -87,11 +91,13 @@ function openCards(){
 				let minutes = $('.minutes').text();
 				let seconds = $('.seconds').text();
 
+				//count pair left - 1
 				pairLeft--;
 
-				//finish game
+			//finish game
 			if(pairLeft == 0){
 				clearInterval(timer);
+				//popup winwow with statistic of game
 				swal({
 					allowEscapeKey: false,
 					allowOutsideClick: false,
@@ -102,17 +108,20 @@ function openCards(){
 					confirmButtonColor: 'blue',
 					button: 'Play again!'
 				}).then(function (isConfirm) {
+					//if user click Play Again then page is reolad
 			if (isConfirm) {
 				createCards();
 				location.reload();
 					}
 				})
 				}
+				//clear the array 
 				checkOpened = [];
 
 			}else{
 				//if mismatch
 				setTimeout(function(){
+					//
 					checkOpened[0].classList.remove('open');
 					checkOpened[1].classList.remove('open');
 
@@ -124,9 +133,11 @@ function openCards(){
 					checkOpened = [];
 				}, 0);
 			}	
+			//return click on
 			clickFlag = true;
 		}, 750);
-		turnCounter++;
+			turnCounter++;
+			//turn counter + 1 and score on window is increment + 1
 			$('.score').html('Turn counter: '+ turnCounter);
 			updateMoves();
 	}
@@ -162,13 +173,16 @@ function startTimer() {
   });
 }
 
+//update moves
 function updateMoves(){
 if (turnCounter > 0 && turnCounter < 15) {
     stars = stars;
   } else if (turnCounter >= 15 && turnCounter <= 20) {
+  	//when turn counter is > 15 and < 20 then one star is removed
     $("#starOne").removeClass("fa-star");
     stars = "2";
   } else if (turnCounter > 20) {
+  	//when turn counter is > 20 then another one star is removed
     $("#starTwoo").removeClass("fa-star");
     stars = "1";
   	}
